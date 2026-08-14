@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+pytest-cache-files-*/
+tmp_pytest/
+test_artifacts/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+chroma_db/
+data/schedule.json
