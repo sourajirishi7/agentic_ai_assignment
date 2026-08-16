@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule Assistant</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    max-width: 720px;
+    margin: 40px auto;
+    padding: 0 16px;
+    color: #1f1f1f;
+  }
+  h1 { font-size: 1.5rem; }
+  #chat {
+    border: 1px solid #ddd;
+    padding: 12px;
+    height: 520px;
+    overflow-y: auto;
+    border-radius: 8px;
+    background: #fafafa;
+  }
+  .msg { margin: 10px 0; white-space: pre-wrap; line-height: 1.4; }
+  .user { color: #1a73e8; font-weight: 600; }
+  .bot { color: #202124; }
+  #input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    margin-top: 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  #input:focus { outline: none; border-color: #1a73e8; }
+</style>
+</head>
+<body>
+<h1>Agentic RAG Schedule Assistant</h1>
+<div id="chat"></div>
+<input id="input" autocomplete="off" placeholder="Ask something, e.g. 'What do I have tomorrow?'">
+<script>
+const chatEl = document.getElementById('chat');
+const inputEl = document.getElementById('input');
+
+async function send() {
+  const text = inputEl.value.trim();
+  if (!text) return;
+  appendMsg('You', text);
+  inputEl.value = '';
+  inputEl.disabled = true;
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: text})
+    });
+    const data = await res.json();
+    appendMsg('Assistant', data.reply || '(no response)');
+  } catch (e) {
+    appendMsg('Assistant', 'Error contacting the server: ' + e);
+  } finally {
+    inputEl.disabled = false;
+    inputEl.focus();
+  }
+}
+
+function appendMsg(sender, text) {
+  const div = document.createElement('div');
+  div.className = 'msg';
+  const cls = sender === 'You' ? 'user' : 'bot';
+  div.innerHTML = '<span class="' + cls + '">' + sender + ':</span> ' + text;
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+</script>
+</body>
+</html>
